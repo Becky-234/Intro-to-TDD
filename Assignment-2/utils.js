@@ -1,7 +1,10 @@
-// utils.js
 module.exports = {
-    sum: (a, b) => a + b,
-
+     sum: (a, b) => {
+        if (a === null || b === null) {
+            return null;
+        }
+        return a + b;
+    },
     createUser: (name, age) => ({
         name,
         age,
@@ -10,7 +13,7 @@ module.exports = {
 
     filterAdults: (users) => users.filter(user => user.age >= 18),
 
-    findInArray: (arr, value) => arr.indexOf(value) !== -1,
+    findInArray: (arr, value) => arr.includes(value),
 
     parseJSON: (jsonString) => {
         if (!jsonString) {
