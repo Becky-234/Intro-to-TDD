@@ -143,7 +143,7 @@ test('set contains a value', () => {
 });
 
 test('set does not contain a value (fail)', () => {
-    const userSet = new Set(['Alex', 'Bella', 'Charis']);
+    const userSet = new Set(['Alex', 'Bella', 'Chris']);
     expect(userSet).toContain('David');
 });
 
