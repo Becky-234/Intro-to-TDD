@@ -1,10 +1,10 @@
 class PaymentProcessor {
     constructor(apiClient) {
         this.apiClient = apiClient;
-        this.currencyConversionRate = 1.2; // magic number
+        this.currencyConversionRate = 1.2;
     }
 
-    processPayment(
+    async processPayment(
         amount,
         currency,
         userId,
@@ -13,9 +13,6 @@ class PaymentProcessor {
         discountCode,
         fraudCheckLevel
     ) {
-        // Long method: does many things
-        // Too many parameters
-
         // 1. Validate payment method
         if (paymentMethod === "credit_card") {
             if (!metadata.cardNumber || !metadata.expiry) {
@@ -31,7 +28,6 @@ class PaymentProcessor {
 
         // 2. Check for fraud
         if (fraudCheckLevel > 0) {
-            // duplicated logic for small or large amount
             if (amount < 100) {
                 console.log("Performing light fraud check for small payment");
                 this._lightFraudCheck(userId, amount);
@@ -45,9 +41,9 @@ class PaymentProcessor {
         let finalAmount = amount;
         if (discountCode) {
             if (discountCode === "SUMMER20") {
-                finalAmount = amount * 0.8; // magic number
+                finalAmount = amount * 0.8;
             } else if (discountCode === "WELCOME10") {
-                finalAmount = amount - 10; // magic number
+                finalAmount = amount - 10;
             } else {
                 console.log("Unknown discount code");
             }
@@ -55,7 +51,7 @@ class PaymentProcessor {
 
         // 4. Convert currency, if needed
         if (currency !== "USD") {
-            finalAmount = finalAmount * this.currencyConversionRate; // magic number
+            finalAmount = finalAmount * this.currencyConversionRate;
         }
 
         // 5. Create transaction object
@@ -71,13 +67,12 @@ class PaymentProcessor {
             timestamp: new Date().toISOString(),
         };
 
-        // 6. Send to API
+        // 6. Send to API - NOW WITH AWAIT
         try {
-            // duplicated code: two very similar API calls
             if (paymentMethod === "credit_card") {
-                this.apiClient.post("/payments/credit", transaction);
+                await this.apiClient.post("/payments/credit", transaction);
             } else if (paymentMethod === "paypal") {
-                this.apiClient.post("/payments/paypal", transaction);
+                await this.apiClient.post("/payments/paypal", transaction);
             }
             console.log("Payment sent to API:", transaction);
         } catch (err) {
@@ -100,9 +95,7 @@ class PaymentProcessor {
     }
 
     _lightFraudCheck(userId, amount) {
-        // pretend logic
         console.log(`Light fraud check for user ${userId} on amount ${amount}`);
-        // duplicated code with heavyFraudCheck?
         if (amount < 10) {
             console.log("Very low risk");
         } else {
@@ -112,7 +105,6 @@ class PaymentProcessor {
 
     _heavyFraudCheck(userId, amount) {
         console.log(`Heavy fraud check for user ${userId} on amount ${amount}`);
-        // duplicated logic again
         if (amount < 1000) {
             console.log("Medium risk");
         } else {
@@ -121,19 +113,16 @@ class PaymentProcessor {
     }
 
     _sendConfirmationEmail(userId, amount, currency) {
-        // In real code, you'd send an email. Here it just prints.
         console.log(
             `Sending email to user ${userId}: Your payment of ${amount} ${currency} was successful.`
         );
     }
 
     _logAnalytics(data) {
-        // God service smell: this class is doing analytics too
         console.log("Analytics event:", data);
     }
 
-    refundPayment(transactionId, userId, reason, amount, currency, metadata) {
-        // Another method with many params (too many parameters)
+    async refundPayment(transactionId, userId, reason, amount, currency, metadata) {
         const refund = {
             transactionId,
             userId,
@@ -144,15 +133,15 @@ class PaymentProcessor {
             date: new Date(),
         };
 
-        // Magic number for refund fee percentage
         const refundFee = amount * 0.05;
-
         refund.netAmount = amount - refundFee;
 
-        // duplicated code: sending via API again
-        this.apiClient.post("/payments/refund", refund);
+        // Make this async too
+        await this.apiClient.post("/payments/refund", refund);
 
         console.log("Refund processed:", refund);
         return refund;
     }
 }
+
+module.exports = PaymentProcessor;

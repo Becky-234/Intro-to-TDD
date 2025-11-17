@@ -1,4 +1,4 @@
-const paymentProcessor = require('./paymentProcessor');
+const PaymentProcessor = require('./paymentProcessor');
 
 describe('PaymentProcessor', () => {
     let paymentProcessor;
@@ -29,8 +29,8 @@ describe('PaymentProcessor', () => {
     });
 
     describe('processPayment - Credit Card', () => {
-        it('should process a valid credit card payment', () => {
-            const result = paymentProcessor.processPayment(
+        it('should process a valid credit card payment', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -53,8 +53,8 @@ describe('PaymentProcessor', () => {
             );
         });
 
-        it('should throw error for credit card without cardNumber', () => {
-            expect(() => {
+        it('should throw error for credit card without cardNumber', async () => {
+            await expect(
                 paymentProcessor.processPayment(
                     100,
                     'USD',
@@ -63,12 +63,12 @@ describe('PaymentProcessor', () => {
                     { expiry: '12/25' },
                     null,
                     0
-                );
-            }).toThrow('Invalid card metadata');
+                )
+            ).rejects.toThrow('Invalid card metadata');
         });
 
-        it('should throw error for credit card without expiry', () => {
-            expect(() => {
+        it('should throw error for credit card without expiry', async () => {
+            await expect(
                 paymentProcessor.processPayment(
                     100,
                     'USD',
@@ -77,14 +77,14 @@ describe('PaymentProcessor', () => {
                     { cardNumber: '4111111111111111' },
                     null,
                     0
-                );
-            }).toThrow('Invalid card metadata');
+                )
+            ).rejects.toThrow('Invalid card metadata');
         });
     });
 
     describe('processPayment - PayPal', () => {
-        it('should process a valid PayPal payment', () => {
-            const result = paymentProcessor.processPayment(
+        it('should process a valid PayPal payment', async () => {
+            const result = await paymentProcessor.processPayment(
                 50,
                 'USD',
                 'user456',
@@ -107,8 +107,8 @@ describe('PaymentProcessor', () => {
             );
         });
 
-        it('should throw error for PayPal without paypalAccount', () => {
-            expect(() => {
+        it('should throw error for PayPal without paypalAccount', async () => {
+            await expect(
                 paymentProcessor.processPayment(
                     50,
                     'USD',
@@ -117,14 +117,14 @@ describe('PaymentProcessor', () => {
                     {},
                     null,
                     0
-                );
-            }).toThrow('Invalid PayPal metadata');
+                )
+            ).rejects.toThrow('Invalid PayPal metadata');
         });
     });
 
     describe('processPayment - Unsupported Payment Method', () => {
-        it('should throw error for unsupported payment method', () => {
-            expect(() => {
+        it('should throw error for unsupported payment method', async () => {
+            await expect(
                 paymentProcessor.processPayment(
                     100,
                     'USD',
@@ -133,14 +133,14 @@ describe('PaymentProcessor', () => {
                     {},
                     null,
                     0
-                );
-            }).toThrow('Unsupported payment method');
+                )
+            ).rejects.toThrow('Unsupported payment method');
         });
     });
 
     describe('processPayment - Fraud Check', () => {
-        it('should perform light fraud check for small payment', () => {
-            paymentProcessor.processPayment(
+        it('should perform light fraud check for small payment', async () => {
+            await paymentProcessor.processPayment(
                 50,
                 'USD',
                 'user123',
@@ -155,8 +155,8 @@ describe('PaymentProcessor', () => {
             );
         });
 
-        it('should perform heavy fraud check for large payment', () => {
-            paymentProcessor.processPayment(
+        it('should perform heavy fraud check for large payment', async () => {
+            await paymentProcessor.processPayment(
                 200,
                 'USD',
                 'user123',
@@ -171,8 +171,8 @@ describe('PaymentProcessor', () => {
             );
         });
 
-        it('should skip fraud check when fraudCheckLevel is 0', () => {
-            paymentProcessor.processPayment(
+        it('should skip fraud check when fraudCheckLevel is 0', async () => {
+            await paymentProcessor.processPayment(
                 200,
                 'USD',
                 'user123',
@@ -189,8 +189,8 @@ describe('PaymentProcessor', () => {
     });
 
     describe('processPayment - Discount Codes', () => {
-        it('should apply SUMMER20 discount (20% off)', () => {
-            const result = paymentProcessor.processPayment(
+        it('should apply SUMMER20 discount (20% off)', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -204,8 +204,8 @@ describe('PaymentProcessor', () => {
             expect(result.discountCode).toBe('SUMMER20');
         });
 
-        it('should apply WELCOME10 discount ($10 off)', () => {
-            const result = paymentProcessor.processPayment(
+        it('should apply WELCOME10 discount ($10 off)', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -219,8 +219,8 @@ describe('PaymentProcessor', () => {
             expect(result.discountCode).toBe('WELCOME10');
         });
 
-        it('should log warning for unknown discount code', () => {
-            const result = paymentProcessor.processPayment(
+        it('should log warning for unknown discount code', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -234,8 +234,8 @@ describe('PaymentProcessor', () => {
             expect(console.log).toHaveBeenCalledWith('Unknown discount code');
         });
 
-        it('should process payment without discount code', () => {
-            const result = paymentProcessor.processPayment(
+        it('should process payment without discount code', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -250,8 +250,8 @@ describe('PaymentProcessor', () => {
     });
 
     describe('processPayment - Currency Conversion', () => {
-        it('should convert non-USD currency', () => {
-            const result = paymentProcessor.processPayment(
+        it('should convert non-USD currency', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'EUR',
                 'user123',
@@ -265,8 +265,8 @@ describe('PaymentProcessor', () => {
             expect(result.currency).toBe('EUR');
         });
 
-        it('should not convert USD currency', () => {
-            const result = paymentProcessor.processPayment(
+        it('should not convert USD currency', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -279,8 +279,8 @@ describe('PaymentProcessor', () => {
             expect(result.finalAmount).toBe(100);
         });
 
-        it('should apply discount before currency conversion', () => {
-            const result = paymentProcessor.processPayment(
+        it('should apply discount before currency conversion', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'EUR',
                 'user123',
@@ -296,8 +296,8 @@ describe('PaymentProcessor', () => {
     });
 
     describe('processPayment - Transaction Object', () => {
-        it('should create transaction with all required fields', () => {
-            const result = paymentProcessor.processPayment(
+        it('should create transaction with all required fields', async () => {
+            const result = await paymentProcessor.processPayment(
                 100,
                 'USD',
                 'user123',
@@ -321,10 +321,10 @@ describe('PaymentProcessor', () => {
     });
 
     describe('processPayment - API Error Handling', () => {
-        it('should throw error when API call fails', () => {
+        it('should throw error when API call fails', async () => {
             mockApiClient.post.mockRejectedValue(new Error('Network error'));
 
-            expect(() => {
+            await expect(
                 paymentProcessor.processPayment(
                     100,
                     'USD',
@@ -333,8 +333,8 @@ describe('PaymentProcessor', () => {
                     { cardNumber: '4111111111111111', expiry: '12/25' },
                     null,
                     0
-                );
-            }).rejects.toThrow('Network error');
+                )
+            ).rejects.toThrow('Network error');
         });
     });
 
@@ -398,8 +398,8 @@ describe('PaymentProcessor', () => {
     });
 
     describe('refundPayment', () => {
-        it('should process a refund with 5% fee', () => {
-            const result = paymentProcessor.refundPayment(
+        it('should process a refund with 5% fee', async () => {
+            const result = await paymentProcessor.refundPayment(
                 'txn123',
                 'user123',
                 'Customer request',
@@ -422,8 +422,8 @@ describe('PaymentProcessor', () => {
             );
         });
 
-        it('should include date in refund object', () => {
-            const result = paymentProcessor.refundPayment(
+        it('should include date in refund object', async () => {
+            const result = await paymentProcessor.refundPayment(
                 'txn123',
                 'user123',
                 'Duplicate charge',
@@ -435,8 +435,8 @@ describe('PaymentProcessor', () => {
             expect(result.date).toBeInstanceOf(Date);
         });
 
-        it('should calculate correct refund fee', () => {
-            const result = paymentProcessor.refundPayment(
+        it('should calculate correct refund fee', async () => {
+            const result = await paymentProcessor.refundPayment(
                 'txn456',
                 'user456',
                 'Wrong item',
