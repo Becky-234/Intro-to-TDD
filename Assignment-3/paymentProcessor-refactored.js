@@ -314,6 +314,4 @@ class PaymentProcessor {
 }
 
 // Export for use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PaymentProcessor;
-}
+module.exports = PaymentProcessor;

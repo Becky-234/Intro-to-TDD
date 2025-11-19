@@ -67,7 +67,7 @@ class PaymentProcessor {
             timestamp: new Date().toISOString(),
         };
 
-        // 6. Send to API - NOW WITH AWAIT
+        // 6. Send to API 
         try {
             if (paymentMethod === "credit_card") {
                 await this.apiClient.post("/payments/credit", transaction);
